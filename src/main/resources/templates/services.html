@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Сервісні послуги — ПР №5</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f4f6f9;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header-title {
+            color: #2c3e50;
+            margin: 0 0 4px 0;
+        }
+        .header-subtitle {
+            color: #7f8c8d;
+            margin: 0;
+            font-size: 14px;
+        }
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+        }
+        .nav-link {
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            border: 1px solid #cbd5e1;
+            background-color: #fff;
+            color: #334155;
+        }
+        .nav-link:hover {
+            background-color: #e2e8f0;
+        }
+        .nav-link.active {
+            background-color: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+        .panel {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .panel-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 12px 18px;
+            font-weight: 600;
+            color: #495057;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+        }
+        .panel-body {
+            padding: 18px;
+        }
+        .form-grid {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .form-grid td {
+            padding: 8px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn-success { background-color: #22c55e; color: #fff; }
+        .btn-primary { background-color: #3b82f6; color: #fff; }
+        .btn-secondary { background-color: #6c757d; color: #fff; margin-right: 8px; }
+        .btn-warning { background-color: #f59e0b; color: #fff; }
+        .btn-danger { background-color: #ef4444; color: #fff; }
+        .btn-sm { padding: 5px 10px; font-size: 13px; }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #dee2e6;
+            padding: 10px 12px;
+            font-size: 14px;
+        }
+        .data-table th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            text-align: left;
+        }
+        .badge-car {
+            display: inline-block;
+            padding: 3px 8px;
+            font-size: 12.5px;
+            border-radius: 4px;
+            margin: 2px;
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .actions-cell {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+        }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .alert-success { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .alert-info { background-color: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+        .alert-error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="top-bar">
+        <div>
+            <h1 class="header-title">Каталог сервісних послуг (Таблиця SERVICES)</h1>
+            <p class="header-subtitle">Відношення Багато-до-Багатьох (@ManyToMany через проміжну таблицю CAR_SERVICES)</p>
+        </div>
+        <div class="nav-tabs">
+            <a th:href="@{/cars}" class="nav-link">Автомобілі</a>
+            <a th:href="@{/owners}" class="nav-link">Власники (1:N)</a>
+            <a th:href="@{/services}" class="nav-link active">Сервісні послуги (M:N)</a>
+        </div>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${infoMessage}" class="alert alert-info" th:text="${infoMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+    <div class="panel">
+        <div class="panel-header" th:text="${editMode} ? 'Редагувати послугу (ID: ' + ${serviceItem.id} + ')' : 'Додати нову сервісну послугу'">
+            Додати нову сервісну послугу
+        </div>
+        <div class="panel-body">
+            <form th:action="@{/services/save}" th:object="${serviceItem}" method="post">
+                <input type="hidden" th:field="*{id}"/>
+                <table class="form-grid">
+                    <tr>
+                        <td style="width: 15%;"><label for="title">Назва послуги: *</label></td>
+                        <td style="width: 35%;"><input type="text" id="title" th:field="*{title}" class="form-control" required placeholder="Заміна гальмівних колодок"/></td>
+
+                        <td style="width: 15%;"><label for="cost">Вартість, $: *</label></td>
+                        <td style="width: 35%;"><input type="number" step="0.01" id="cost" th:field="*{cost}" class="form-control" min="0" required/></td>
+                    </tr>
+                    <tr>
+                        <td><label for="description">Опис робіт:</label></td>
+                        <td><input type="text" id="description" th:field="*{description}" class="form-control" placeholder="Передні та задні гальмівні колодки"/></td>
+                        <td colspan="2" style="text-align: right;">
+                            <a th:if="${editMode}" th:href="@{/services}" class="btn btn-secondary">Скасувати</a>
+                            <button type="submit" th:class="${editMode} ? 'btn btn-primary' : 'btn btn-success'"
+                                    th:text="${editMode} ? 'Зберегти зміни' : 'Додати послугу'">
+                                Додати послугу
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">Список сервісних послуг та автомобілів, яким їх призначено</div>
+        <div class="panel-body">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th style="width: 55px; text-align: center;">ID</th>
+                    <th style="width: 240px;">Назва послуги</th>
+                    <th>Опис робіт</th>
+                    <th style="width: 110px; text-align: right;">Вартість, $</th>
+                    <th>Автомобілі (@ManyToMany)</th>
+                    <th style="width: 180px; text-align: center;">Дії</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${services}">
+                    <td style="text-align: center;" th:text="${s.id}">1</td>
+                    <td><strong th:text="${s.title}">Заміна мастила</strong></td>
+                    <td th:text="${s.description}">Опис</td>
+                    <td style="text-align: right;" th:text="${#numbers.formatDecimal(s.cost, 1, 2)}">85.00</td>
+                    <td>
+                        <div th:if="${!#lists.isEmpty(s.cars)}">
+                            <span th:each="c : ${s.cars}" class="badge-car"
+                                  th:text="${c.model + ' (' + c.regNumber + ')'}">Авто</span>
+                        </div>
+                        <span th:if="${#lists.isEmpty(s.cars)}" style="color: #9ca3af; font-style: italic;">Не призначено жодному авто</span>
+                    </td>
+                    <td>
+                        <div class="actions-cell">
+                            <a th:href="@{/services/edit/{id}(id=${s.id})}" class="btn btn-warning btn-sm">Редагувати</a>
+                            <form th:action="@{/services/delete/{id}(id=${s.id})}" method="post" style="margin: 0;"
+                                  onsubmit="return confirm('Видалити цю сервісну послугу?');">
+                                <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

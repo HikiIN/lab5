@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Сервісні послуги автомобіля — ПР №5</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f4f6f9;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header-title {
+            color: #2c3e50;
+            margin: 0 0 4px 0;
+        }
+        .header-subtitle {
+            color: #7f8c8d;
+            margin: 0;
+            font-size: 14px;
+        }
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+        }
+        .nav-link {
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            border: 1px solid #cbd5e1;
+            background-color: #fff;
+            color: #334155;
+        }
+        .nav-link:hover {
+            background-color: #e2e8f0;
+        }
+        .panel {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .panel-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 12px 18px;
+            font-weight: 600;
+            color: #495057;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .panel-body {
+            padding: 18px;
+        }
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #dee2e6;
+            padding: 9px 11px;
+            font-size: 13.5px;
+        }
+        .data-table th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            text-align: left;
+        }
+        .btn {
+            display: inline-block;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn-success {
+            background-color: #22c55e;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background-color: #16a34a;
+        }
+        .btn-warning {
+            background-color: #f59e0b;
+            color: #fff;
+        }
+        .btn-warning:hover {
+            background-color: #d97706;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: #fff;
+        }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .alert-success {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .alert-info {
+            background-color: #e0f2fe;
+            color: #075985;
+            border: 1px solid #bae6fd;
+        }
+        .car-summary {
+            display: flex;
+            gap: 28px;
+            flex-wrap: wrap;
+            font-size: 14.5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="top-bar">
+        <div>
+            <h1 class="header-title" th:text="'Сервісне обслуговування автомобіля: ' + ${car.model} + ' (' + ${car.regNumber} + ')'">
+                Сервісне обслуговування автомобіля
+            </h1>
+            <p class="header-subtitle">Керування зв'язком Багато-до-Багатьох (таблиця car_services)</p>
+        </div>
+        <div class="nav-tabs">
+            <a th:href="@{/cars}" class="nav-link">← Назад до списку автомобілів</a>
+            <a th:href="@{/services}" class="nav-link">Довідник послуг</a>
+        </div>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${infoMessage}" class="alert alert-info" th:text="${infoMessage}"></div>
+
+    <div class="panel">
+        <div class="panel-header">Інформація про транспортний засіб</div>
+        <div class="panel-body car-summary">
+            <div><strong>ID:</strong> <span th:text="${car.id}">1</span></div>
+            <div><strong>Модель:</strong> <span th:text="${car.model}">Toyota Camry</span></div>
+            <div><strong>Держ. номер:</strong> <span th:text="${car.regNumber}">AA1234EE</span></div>
+            <div><strong>Рік випуску:</strong> <span th:text="${car.year}">2020</span></div>
+            <div><strong>Власник:</strong> <span th:text="${car.owner != null ? car.owner.fullName + ' (' + car.owner.phone + ')' : 'Не закріплено'}">Коваленко О.П.</span></div>
+            <div><strong>Сумарна вартість обраних послуг ТО:</strong> <span style="color: #16a34a; font-weight: 700;" th:text="'$' + ${#numbers.formatDecimal(totalCost, 1, 2)}">$125.00</span></div>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <div class="panel">
+            <div class="panel-header" style="background-color: #fef3c7;">
+                <span>Призначені автомобілю послуги</span>
+                <span th:text="'Кількість: ' + ${#lists.size(services)}">0</span>
+            </div>
+            <div class="panel-body">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th style="width: 45px;">#</th>
+                        <th>Назва послуги</th>
+                        <th>Опис</th>
+                        <th style="width: 85px; text-align: right;">Ціна, $</th>
+                        <th style="width: 110px; text-align: center;">Дія</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(services)}">
+                        <td colspan="5" style="text-align: center; color: #6c757d; padding: 16px;">
+                            Автомобілю ще не призначено жодної сервісної послуги.
+                        </td>
+                    </tr>
+                    <tr th:each="srv : ${services}">
+                        <td th:text="${srv.id}">1</td>
+                        <td><strong th:text="${srv.title}">Заміна мастила</strong></td>
+                        <td th:text="${srv.description}">Опис</td>
+                        <td style="text-align: right;" th:text="${#numbers.formatDecimal(srv.cost, 1, 2)}">85.00</td>
+                        <td style="text-align: center;">
+                            <form th:action="@{/cars/{cid}/services/remove/{sid}(cid=${car.id}, sid=${srv.id})}" method="post" style="margin: 0;">
+                                <button type="submit" class="btn btn-warning">Прибрати →</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header" style="background-color: #dcfce7;">
+                <span>Доступні послуги для додавання</span>
+                <span th:text="'Доступно: ' + ${#lists.size(available)}">0</span>
+            </div>
+            <div class="panel-body">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th style="width: 120px; text-align: center;">Дія</th>
+                        <th style="width: 45px;">#</th>
+                        <th>Назва послуги</th>
+                        <th>Опис</th>
+                        <th style="width: 85px; text-align: right;">Ціна, $</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(available)}">
+                        <td colspan="5" style="text-align: center; color: #6c757d; padding: 16px;">
+                            Усі наявні в довіднику послуги вже призначені цьому автомобілю.
+                        </td>
+                    </tr>
+                    <tr th:each="srv : ${available}">
+                        <td style="text-align: center;">
+                            <form th:action="@{/cars/{cid}/services/add/{sid}(cid=${car.id}, sid=${srv.id})}" method="post" style="margin: 0;">
+                                <button type="submit" class="btn btn-success">← Призначити</button>
+                            </form>
+                        </td>
+                        <td th:text="${srv.id}">2</td>
+                        <td><strong th:text="${srv.title}">Діагностика</strong></td>
+                        <td th:text="${srv.description}">Опис</td>
+                        <td style="text-align: right;" th:text="${#numbers.formatDecimal(srv.cost, 1, 2)}">40.00</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
